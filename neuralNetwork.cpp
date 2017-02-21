@@ -72,11 +72,13 @@ void NEURAL_NETWORK::Add_Synapse(void) {
         synapses[numSynapses++] = new SYNAPSE(); 
 }
 
-void NEURAL_NETWORK::Update(void) {
+void NEURAL_NETWORK::Update(int t) {
 
 	Push_Current_Values_To_Previous_Values();
 
 	Reset_Neuron_Values();
+
+	Update_Weights(t);
 
 	Update_Neurons();
 
@@ -125,7 +127,7 @@ void NEURAL_NETWORK::Threshold_Neurons(void) {
 
         for ( int n = 0 ; n < numNeurons ; n++ )
 
-		neurons[n]->Threshold();	
+		neurons[n]->Threshold();
 }
 
 void NEURAL_NETWORK::Update_Neurons(void) {
@@ -135,7 +137,7 @@ void NEURAL_NETWORK::Update_Neurons(void) {
 		int sni = synapses[s]->Get_Source_Neuron_Index();
 
 		int tni = synapses[s]->Get_Target_Neuron_Index();
-	
+
 		double w = synapses[s]->Get_Weight();
 
 		double influence = w * neurons[sni]->Get_Previous_Value();
@@ -143,6 +145,12 @@ void NEURAL_NETWORK::Update_Neurons(void) {
 		neurons[tni]->Set( neurons[tni]->Get_Value() + influence );
 	}
 
+}
+
+void NEURAL_NETWORK::Update_Weights(int t){
+	for (int s = 0; s < numSynapses; s++){
+		synapses[s]->Update_Weight(t);
+	}
 }
 
 #endif

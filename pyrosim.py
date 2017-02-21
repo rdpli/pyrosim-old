@@ -6,327 +6,336 @@ import constants
 
 from subprocess import Popen, PIPE
 
+
 class PYROSIM:
+    def __init__(self, playBlind=False, playPaused=False, evalTime=constants.evaluationTime):
 
-	def __init__(self,playBlind=False,playPaused=False,evalTime=constants.evaluationTime):
+        self.numJoints = 0
 
-		self.numJoints = 0
+        self.numSensors = 0
 
-		self.numSensors = 0
+        self.evaluationTime = evalTime
 
-		self.evaluationTime = evalTime
+        commandsToSend = ['./simulator']
 
-		commandsToSend = ['./simulator']
+        if (playBlind == True):
 
-		if ( playBlind == True ):
+            commandsToSend.append('-blind')
+        else:
+            commandsToSend.append('-notex')
 
-			commandsToSend.append('-blind')
-		else:
-			commandsToSend.append('-notex')
+        if (playPaused == True):
+            commandsToSend.append('-pause')
 
-		if ( playPaused == True ):
+        self.simulator = Popen(commandsToSend, stdout=PIPE, stdin=PIPE, stderr=PIPE)
 
-			commandsToSend.append('-pause')
+        # self.simulator = Popen(commandsToSend, stdout=PIPE, stdin=PIPE)
 
-		self.simulator = Popen(commandsToSend, stdout=PIPE, stdin=PIPE, stderr=PIPE)
+        self.Send('EvaluationTime ' + str(evalTime) + '\n')
 
-		# self.simulator = Popen(commandsToSend, stdout=PIPE, stdin=PIPE)
+    def Get_Sensor_Data(self, sensorID=0, s=0):
 
-		self.Send('EvaluationTime '+str(evalTime)+'\n')
+        return self.dataFromPython[sensorID, s, :]
 
-	def Get_Sensor_Data(self,sensorID=0,s=0):
+    def Send_Bias_Neuron(self, neuronID=0):
 
-		return self.dataFromPython[sensorID,s,:]
+        outputString = 'BiasNeuron'
 
-	def Send_Bias_Neuron(self, neuronID = 0 ):
+        outputString = outputString + ' ' + str(neuronID)
 
-		outputString = 'BiasNeuron'
+        outputString = outputString + '\n'
 
-		outputString = outputString + ' ' + str(neuronID)
+        self.Send(outputString)
 
-		outputString = outputString + '\n'
+    def Send_Box(self, objectID=0, x=0, y=0, z=0, length=0.1, width=0.1, height=0.1, r=1, g=1, b=1):
 
-		self.Send(outputString)
+        outputString = 'Box'
 
-	def Send_Box(self, objectID=0, x=0, y=0, z=0, length=0.1, width=0.1, height=0.1, r=1, g=1, b=1):
+        outputString = outputString + ' ' + str(objectID)
 
-		outputString = 'Box'
+        outputString = outputString + ' ' + str(x)
+        outputString = outputString + ' ' + str(y)
+        outputString = outputString + ' ' + str(z)
 
-		outputString = outputString + ' ' + str(objectID)
+        outputString = outputString + ' ' + str(length)
+        outputString = outputString + ' ' + str(width)
+        outputString = outputString + ' ' + str(height)
 
-		outputString = outputString + ' ' + str(x)
-		outputString = outputString + ' ' + str(y)
-		outputString = outputString + ' ' + str(z)
+        outputString = outputString + ' ' + str(r)
+        outputString = outputString + ' ' + str(g)
+        outputString = outputString + ' ' + str(b)
 
-		outputString = outputString + ' ' + str(length)
-		outputString = outputString + ' ' + str(width)
-		outputString = outputString + ' ' + str(height)
+        outputString = outputString + '\n'
 
-		outputString = outputString + ' ' + str(r)
-		outputString = outputString + ' ' + str(g)
-		outputString = outputString + ' ' + str(b)
+        self.Send(outputString)
 
-		outputString = outputString + '\n'
+    def Send_Cylinder(self, objectID=0, x=0, y=0, z=0, r1=0, r2=0, r3=1, length=1.0, radius=0.1, r=1, g=1, b=1):
 
-		self.Send(outputString)
+        outputString = 'Cylinder'
 
-	def Send_Cylinder(self, objectID=0, x=0, y=0, z=0, r1=0, r2=0, r3=1, length=1.0, radius=0.1, r=1, g=1, b=1):
+        outputString = outputString + ' ' + str(objectID)
 
-		outputString = 'Cylinder'
+        outputString = outputString + ' ' + str(x)
+        outputString = outputString + ' ' + str(y)
+        outputString = outputString + ' ' + str(z)
 
-		outputString = outputString + ' ' + str(objectID)
+        outputString = outputString + ' ' + str(r1)
+        outputString = outputString + ' ' + str(r2)
+        outputString = outputString + ' ' + str(r3)
 
-		outputString = outputString + ' ' + str(x)
-		outputString = outputString + ' ' + str(y)
-		outputString = outputString + ' ' + str(z)
+        outputString = outputString + ' ' + str(length)
+        outputString = outputString + ' ' + str(radius)
 
-		outputString = outputString + ' ' + str(r1)
-		outputString = outputString + ' ' + str(r2)
-		outputString = outputString + ' ' + str(r3)
+        outputString = outputString + ' ' + str(r)
+        outputString = outputString + ' ' + str(g)
+        outputString = outputString + ' ' + str(b)
 
-		outputString = outputString + ' ' + str(length)
-		outputString = outputString + ' ' + str(radius)
+        outputString = outputString + '\n'
 
-		outputString = outputString + ' ' + str(r)
-		outputString = outputString + ' ' + str(g)
-		outputString = outputString + ' ' + str(b)
+        self.Send(outputString)
 
-		outputString = outputString + '\n'
+    def Send_Hidden_Neuron(self, neuronID=0, tau=1.0):
 
-		self.Send(outputString)
+        outputString = 'HiddenNeuron'
 
-	def Send_Hidden_Neuron(self, neuronID = 0 , tau = 1.0 ):
+        outputString = outputString + ' ' + str(neuronID)
 
-		outputString = 'HiddenNeuron'
+        outputString = outputString + ' ' + str(tau)
 
-		outputString = outputString + ' ' + str(neuronID)
+        outputString = outputString + '\n'
 
-		outputString = outputString + ' ' + str(tau)
+        self.Send(outputString)
 
-		outputString = outputString + '\n'
+    def Send_Joint(self, jointID=0, firstObjectID=0, secondObjectID=1, x=0, y=0, z=0, n1=0, n2=0, n3=1,
+                   lo=-math.pi / 4.0, hi=+math.pi / 4.0, speed=1.0, positionControl=True):
 
-		self.Send(outputString)
+        outputString = 'Joint'
 
-	def Send_Joint(self, jointID=0, firstObjectID=0, secondObjectID=1, x=0, y=0, z=0, n1=0, n2=0, n3=1, lo=-math.pi/4.0, hi=+math.pi/4.0 , speed=1.0, positionControl = True):
+        outputString = outputString + ' ' + str(jointID)
 
-		outputString = 'Joint'
+        outputString = outputString + ' ' + str(firstObjectID)
+        outputString = outputString + ' ' + str(secondObjectID)
 
-		outputString = outputString + ' ' + str(jointID)
+        outputString = outputString + ' ' + str(x)
+        outputString = outputString + ' ' + str(y)
+        outputString = outputString + ' ' + str(z)
 
-		outputString = outputString + ' ' + str(firstObjectID)
-		outputString = outputString + ' ' + str(secondObjectID)
+        outputString = outputString + ' ' + str(n1)
+        outputString = outputString + ' ' + str(n2)
+        outputString = outputString + ' ' + str(n3)
 
-		outputString = outputString + ' ' + str(x)
-		outputString = outputString + ' ' + str(y)
-		outputString = outputString + ' ' + str(z)
+        outputString = outputString + ' ' + str(lo)
+        outputString = outputString + ' ' + str(hi)
 
-		outputString = outputString + ' ' + str(n1)
-		outputString = outputString + ' ' + str(n2)
-		outputString = outputString + ' ' + str(n3)
+        outputString = outputString + ' ' + str(speed)
 
-		outputString = outputString + ' ' + str(lo)
-		outputString = outputString + ' ' + str(hi)
+        outputString = outputString + ' ' + str(positionControl)
 
-		outputString = outputString + ' ' + str(speed)
+        outputString = outputString + '\n'
 
-		outputString = outputString + ' ' + str(positionControl)
+        self.Send(outputString)
 
-		outputString = outputString + '\n'
+    def Send_Light_Sensor(self, sensorID=0, objectID=0):
 
-		self.Send(outputString)
+        outputString = 'LightSensor'
 
-	def Send_Light_Sensor(self, sensorID=0, objectID = 0 ):
+        outputString = outputString + ' ' + str(sensorID)
 
-		outputString = 'LightSensor'
+        outputString = outputString + ' ' + str(objectID)
 
-		outputString = outputString + ' ' + str(sensorID)
+        outputString = outputString + '\n'
 
-		outputString = outputString + ' ' + str(objectID)
+        self.Send(outputString)
 
-		outputString = outputString + '\n'
+        self.numSensors = self.numSensors + 1
 
-		self.Send(outputString)
+    def Send_Light_Source(self, objectIndex=0):
 
-		self.numSensors = self.numSensors + 1
+        outputString = 'LightSource'
 
-	def Send_Light_Source(self, objectIndex = 0 ):
+        outputString = outputString + ' ' + str(objectIndex)
 
-		outputString = 'LightSource'
+        outputString = outputString + '\n'
 
-		outputString = outputString + ' ' + str(objectIndex)
+        self.Send(outputString)
 
-		outputString = outputString + '\n'
+    def Send_Motor_Neuron(self, neuronID=0, jointID=0, tau=1.0):
 
-		self.Send(outputString)
+        outputString = 'MotorNeuron'
 
-	def Send_Motor_Neuron(self , neuronID = 0 , jointID = 0 , tau = 1.0 ):
+        outputString = outputString + ' ' + str(neuronID)
 
-		outputString = 'MotorNeuron'
+        outputString = outputString + ' ' + str(jointID)
 
-		outputString = outputString + ' ' + str(neuronID)
+        outputString = outputString + ' ' + str(tau)
 
-		outputString = outputString + ' ' + str(jointID)
+        outputString = outputString + '\n'
 
-		outputString = outputString + ' ' + str(tau)
+        self.Send(outputString)
 
-		outputString = outputString + '\n'
+    def Send_Position_Sensor(self, sensorID=0, objectID=0):
 
-		self.Send(outputString)
+        outputString = 'PositionSensor'
 
-	def Send_Position_Sensor(self, sensorID=0, objectID = 0):
+        outputString = outputString + ' ' + str(sensorID)
 
-		outputString = 'PositionSensor'
+        outputString = outputString + ' ' + str(objectID)
 
-		outputString = outputString + ' ' + str(sensorID)
+        outputString = outputString + '\n'
 
-		outputString = outputString + ' ' + str(objectID)
+        self.Send(outputString)
 
-		outputString = outputString + '\n'
+        self.numSensors = self.numSensors + 1
 
-		self.Send(outputString)
+    def Send_Proprioceptive_Sensor(self, sensorID=0, jointID=0):
 
-		self.numSensors = self.numSensors + 1
+        outputString = 'ProprioceptiveSensor'
 
-	def Send_Proprioceptive_Sensor(self, sensorID=0, jointID = 0):
+        outputString = outputString + ' ' + str(sensorID)
 
-		outputString = 'ProprioceptiveSensor'
+        outputString = outputString + ' ' + str(jointID)
 
-		outputString = outputString + ' ' + str(sensorID)
+        outputString = outputString + '\n'
 
-		outputString = outputString + ' ' + str(jointID)
+        self.Send(outputString)
 
-		outputString = outputString + '\n'
+        self.numSensors = self.numSensors + 1
 
-		self.Send(outputString)
+    def Send_Sensor_Neuron(self, neuronID=0, sensorID=0, sensorValueIndex=0, tau=1.0):
 
-		self.numSensors = self.numSensors + 1
+        outputString = 'SensorNeuron'
 
-	def Send_Sensor_Neuron(self, neuronID=0, sensorID=0, sensorValueIndex=0, tau=1.0 ):
+        outputString = outputString + ' ' + str(neuronID)
 
-		outputString = 'SensorNeuron'
+        outputString = outputString + ' ' + str(sensorID)
 
-		outputString = outputString + ' ' + str(neuronID)
+        outputString = outputString + ' ' + str(sensorValueIndex)
 
-		outputString = outputString + ' ' + str(sensorID)
+        outputString = outputString + ' ' + str(tau)
 
-		outputString = outputString + ' ' + str(sensorValueIndex)
+        outputString = outputString + '\n'
 
-		outputString = outputString + ' ' + str(tau)
+        self.Send(outputString)
 
-		outputString = outputString + '\n'
+    def Send_Ray_Sensor(self, sensorID=0, objectID=0, x=0, y=0, z=0, r1=0, r2=0, r3=1):
 
-		self.Send(outputString)
+        outputString = 'RaySensor'
 
-	def Send_Ray_Sensor(self, sensorID=0, objectID=0, x=0,y=0,z=0, r1=0,r2=0,r3=1):
+        outputString = outputString + ' ' + str(sensorID)
 
-		outputString = 'RaySensor'
+        outputString = outputString + ' ' + str(objectID)
 
-		outputString = outputString + ' ' + str(sensorID)
+        outputString = outputString + ' ' + str(x)
+        outputString = outputString + ' ' + str(y)
+        outputString = outputString + ' ' + str(z)
 
-		outputString = outputString + ' ' + str(objectID)
+        outputString = outputString + ' ' + str(r1)
+        outputString = outputString + ' ' + str(r2)
+        outputString = outputString + ' ' + str(r3)
 
-		outputString = outputString + ' ' + str(x)
-		outputString = outputString + ' ' + str(y)
-		outputString = outputString + ' ' + str(z)
+        outputString = outputString + '\n'
 
-		outputString = outputString + ' ' + str(r1)
-		outputString = outputString + ' ' + str(r2)
-		outputString = outputString + ' ' + str(r3)
+        self.Send(outputString)
 
-		outputString = outputString + '\n'
+        self.numSensors = self.numSensors + 1
 
-		self.Send(outputString)
+    def Send_Synapse(self, sourceNeuronID=0, targetNeuronID=0, weight=0.0):
+        self.Send_Changing_Synapse(sourceNeuronID=sourceNeuronID, targetNeuronID=targetNeuronID,
+                                   start_weight=weight, end_weight=weight, start_time=0, end_time=-1)
 
-		self.numSensors = self.numSensors + 1
+    def Send_Changing_Synapse(self, sourceNeuronID=0, targetNeuronID=0, start_weight=0.0, end_weight=0.0, start_time=0,
+                              end_time=0):
 
-	def Send_Synapse(self, sourceNeuronID = 0 , targetNeuronID = 0 , weight = 0.0 ):
+        outputString = 'Synapse'
 
-		outputString = 'Synapse'
+        outputString = outputString + ' ' + str(sourceNeuronID)
 
-		outputString = outputString + ' ' + str(sourceNeuronID)
+        outputString = outputString + ' ' + str(targetNeuronID)
 
-		outputString = outputString + ' ' + str(targetNeuronID)
+        outputString = outputString + ' ' + str(start_weight)
 
-		outputString = outputString + ' ' + str(weight)
+        outputString = outputString + ' ' + str(end_weight)
 
-		outputString = outputString + '\n'
+        outputString = outputString + ' ' + str(start_time)
 
-		self.Send(outputString)
+        outputString = outputString + ' ' + str(end_time)
 
-	def Send_Touch_Sensor(self, sensorID=0, objectID=0):
+        outputString = outputString + '\n'
 
-		outputString = 'TouchSensor'
+        self.Send(outputString)
 
-		outputString = outputString + ' ' + str(sensorID)
+    def Send_Touch_Sensor(self, sensorID=0, objectID=0):
 
-		outputString = outputString + ' ' + str(objectID)
+        outputString = 'TouchSensor'
 
-		outputString = outputString + '\n'
+        outputString = outputString + ' ' + str(sensorID)
 
-		self.Send(outputString)
+        outputString = outputString + ' ' + str(objectID)
 
-		self.numSensors = self.numSensors + 1
+        outputString = outputString + '\n'
 
-	def Send_Vestibular_Sensor(self, sensorID=0, objectID = 0):
+        self.Send(outputString)
 
-		outputString = 'VestibularSensor'
+        self.numSensors = self.numSensors + 1
 
-		outputString = outputString + ' ' + str(sensorID)
+    def Send_Vestibular_Sensor(self, sensorID=0, objectID=0):
 
-		outputString = outputString + ' ' + str(objectID)
+        outputString = 'VestibularSensor'
 
-		outputString = outputString + '\n'
+        outputString = outputString + ' ' + str(sensorID)
 
-		self.Send(outputString)
+        outputString = outputString + ' ' + str(objectID)
 
-		self.numSensors = self.numSensors + 1
+        outputString = outputString + '\n'
 
-	def Start(self):
+        self.Send(outputString)
 
-		self.Send('Done\n')
+        self.numSensors = self.numSensors + 1
 
-	def Wait_To_Finish(self):
+    def Start(self):
 
-		dataFromSimulator = self.simulator.communicate()
+        self.Send('Done\n')
 
-		self.Collect_Sensor_Data(dataFromSimulator)
+    def Wait_To_Finish(self):
 
-# --------------------- Private methods -----------------------------
+        dataFromSimulator = self.simulator.communicate()
 
-	def Collect_Sensor_Data(self,dataFromSimulator):
+        self.Collect_Sensor_Data(dataFromSimulator)
 
-		self.dataFromPython = np.zeros([self.numSensors,4,self.evaluationTime],dtype='f')
+    # --------------------- Private methods -----------------------------
 
-		dataFromSimulator = dataFromSimulator[0]
+    def Collect_Sensor_Data(self, dataFromSimulator):
 
-		dataFromSimulator = dataFromSimulator.split()
+        self.dataFromPython = np.zeros([self.numSensors, 4, self.evaluationTime], dtype='f')
 
-		index = 0
+        dataFromSimulator = dataFromSimulator[0]
 
-                if ( dataFromSimulator == [] ):
+        dataFromSimulator = dataFromSimulator.split()
 
-                        return
+        index = 0
 
-		while ( dataFromSimulator[index] != 'Done' ):
+        if (dataFromSimulator == []):
+            return
 
-			ID = int( dataFromSimulator[index] )
+        while (dataFromSimulator[index] != 'Done'):
 
-			index = index + 1
+            ID = int(dataFromSimulator[index])
 
-			numSensorValues = int( dataFromSimulator[index] ) 
+            index = index + 1
 
-			index = index + 1
+            numSensorValues = int(dataFromSimulator[index])
 
-			for t in range(0,self.evaluationTime):
+            index = index + 1
 
-				for s in range(0,numSensorValues):
+            for t in range(0, self.evaluationTime):
 
-					sensorValue = float( dataFromSimulator[index] )
+                for s in range(0, numSensorValues):
+                    sensorValue = float(dataFromSimulator[index])
 
-					self.dataFromPython[ID,s,t] = sensorValue
+                    self.dataFromPython[ID, s, t] = sensorValue
 
-					index = index + 1
+                    index = index + 1
 
-	def Send(self,stringToSend):
+    def Send(self, stringToSend):
 
-		self.simulator.stdin.write( stringToSend )
+        self.simulator.stdin.write(stringToSend)

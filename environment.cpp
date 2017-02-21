@@ -132,7 +132,7 @@ void ENVIRONMENT::Update_Neural_Network(int t) {
 
 	if ( neuralNetwork )
 
-		neuralNetwork->Update();
+		neuralNetwork->Update(t);
 }
 
 void ENVIRONMENT::Write_Sensor_Data(int evalPeriod) {
@@ -299,9 +299,9 @@ void ENVIRONMENT::Create_Position_Sensor(int evalPeriod) {
 
 	std::cin >> ID;
 
-        std::cin >> objectIndex; 
+        std::cin >> objectIndex;
 
-	objects[objectIndex]->Create_Position_Sensor(ID,evalPeriod);	
+	objects[objectIndex]->Create_Position_Sensor(ID,evalPeriod);
 }
 
 void ENVIRONMENT::Create_Proprioceptive_Sensor(int evalPeriod) {

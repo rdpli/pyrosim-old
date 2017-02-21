@@ -6,11 +6,15 @@ class SYNAPSE {
 private:
 
 	int sourceNeuronIndex;
-
 	int targetNeuronIndex;
+	int start_time;
+	int end_time;
 
 	double weight;
-	
+	double start_weight;
+	double end_weight;
+	double weight_increment;
+
 public:
         SYNAPSE(void);
 
@@ -21,6 +25,8 @@ public:
 	int  Get_Target_Neuron_Index(void);
 
 	double Get_Weight(void);
+
+	void Update_Weight(int t);
 
 	void Print(void);
 };

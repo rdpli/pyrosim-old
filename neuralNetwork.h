@@ -31,7 +31,9 @@ public:
 
 	void   Add_Synapse(void);
 
-	void Update(void);
+	void Update(int t);
+
+	void Update_Weights(int t);
 
 private:
 	void Initialize_Neurons(void);
