@@ -8,10 +8,12 @@ GENS = 1000
 NUM_ENV = 4
 EVAL_TIME = 500
 FIT_STAT = np.min
-NUM_RUNS = 30
 
+# NUM_RUNS = 30
+START_RUN_IDX = 0
+END_RUN_IDX = 4
 
-for run in range(NUM_RUNS):
+for run in range(START_RUN_IDX, END_RUN_IDX):
     for develop in [True, False]:
 
         pop = Population(POP_SIZE, num_env=NUM_ENV, development=develop, fitness_stat=FIT_STAT)
@@ -31,7 +33,7 @@ for run in range(NUM_RUNS):
         f.close()
 
 
-# r = open('robot.p', 'r')
+# r = open('data/Exp_Devo_Run_0.p', 'r')
 # final_pop = pickle.load(r)
 #
 # sorted_inds = sorted(final_pop.individuals_dict, key=lambda k: final_pop.individuals_dict[k].fitness)
