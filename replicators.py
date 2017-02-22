@@ -6,8 +6,9 @@ from environments import Environment
 
 
 class Individual(object):
-    def __init__(self, idx, speed, eval_time, body_length, num_legs, development):
-        self.sim = None
+    def __init__(self, idx, num_env, speed, eval_time, body_length, num_legs, development, fitness_stat):
+        self.num_env = num_env
+        self.sim = [None for _ in range(num_env)]
         self.speed = speed
         self.eval_time = eval_time
         self.body_length = body_length
@@ -18,6 +19,7 @@ class Individual(object):
         else:
             self.genome = np.random.random((num_legs+1, 2*num_legs)) * 2 - 1
         self.id = idx
+        self.fitness_stat = fitness_stat
         self.fitness = 0
         self.age = 0
         self.dominated_by = []
@@ -30,19 +32,23 @@ class Individual(object):
         new.__dict__.update(deepcopy(self.__dict__, memo))
         return new
 
-    def start_evaluation(self, env_type, eval_time, blind, pause):
-        self.sim = PYROSIM(playPaused=pause, evalTime=eval_time, playBlind=blind)
-        _robot = Vehicle(self.sim, self.genome, self.speed, self.eval_time, self.body_length, self.num_legs,
-                         self.development)
-        _env = Environment(env_type, self.sim, self.body_length, 1+2*self.num_legs)
-        self.sim.Start()
+    def start_evaluation(self, eval_time, blind, pause):
+        for e in range(self.num_env):
+            self.sim[e] = PYROSIM(playPaused=pause, evalTime=eval_time, playBlind=blind)
+            _robot = Vehicle(self.sim[e], self.genome, self.speed, self.eval_time, self.body_length, self.num_legs,
+                             self.development)
+            _env = Environment(e, self.sim[e], self.body_length, 1+2*self.num_legs)
+            self.sim[e].Start()
 
     def compute_fitness(self):
-        self.sim.Wait_To_Finish()
-        dist = self.sim.Get_Sensor_Data(sensorID=self.num_legs)
-        self.fitness += [dist[-1]]
-        del self.sim
+        for e in range(self.num_env):
+            self.sim[e].Wait_To_Finish()
+            dist = self.sim[e].Get_Sensor_Data(sensorID=self.num_legs)
+            self.fitness += [dist[-1]]
+
+        self.fitness = self.fitness_stat(self.fitness)
         self.already_evaluated = True
+        self.sim = [None for _ in range(self.num_env)]
 
     def mutate(self, new_id, prob=None):
         if prob is None:
@@ -69,7 +75,8 @@ class Individual(object):
 
 
 class Population(object):
-    def __init__(self, size, num_env=4, eval_time=500, speed=0.3, body_length=0.1, num_legs=4, development=False):
+    def __init__(self, size, num_env=4, eval_time=500, speed=0.3, body_length=0.1, num_legs=4, development=False,
+                 fitness_stat=np.min):
         self.size = size
         self.gen = 0
         self.individuals_dict = {}
@@ -80,6 +87,7 @@ class Population(object):
         self.body_length = body_length
         self.num_legs = num_legs
         self.development = development
+        self.fitness_stat = fitness_stat
         self.non_dominated_size = 0
         self.pareto_levels = {}
         self.add_random_inds(size)
@@ -88,30 +96,15 @@ class Population(object):
     def print_non_dominated(self):
         print self.pareto_levels[0]
 
-    def evaluate(self, fitness_stat=np.mean, blind=True, pause=False):
-
+    def evaluate(self, blind=True, pause=False):
         for key, ind in self.individuals_dict.items():
             if not ind.already_evaluated:
                 ind.fitness = []
+                ind.start_evaluation(self.eval_time, blind, pause)
 
-        for env_type in range(self.num_env):
-            for key, ind in self.individuals_dict.items():
-                if not ind.already_evaluated:
-                    ind.start_evaluation(env_type, self.eval_time, blind, pause)
-
-            for key, ind in self.individuals_dict.items():
-                if not ind.already_evaluated:
-                    ind.compute_fitness()
-
-        todo = [key for key, ind in self.individuals_dict.items() if not ind.already_evaluated]
-        while len(todo) > 0:
-            to_remove = []
-            for key in todo:
-                this_ind = self.individuals_dict[key]
-                if len(this_ind.fitness) == self.num_env:
-                    ind.fitness = fitness_stat(ind.fitness)
-                    to_remove += [key]
-            todo = [key for key in todo if key not in to_remove]
+        for key, ind in self.individuals_dict.items():
+            if not ind.already_evaluated:
+                ind.compute_fitness()
 
     def create_children_through_mutation(self, fill_pop_from_non_dom=True):
         if fill_pop_from_non_dom:
@@ -119,6 +112,7 @@ class Population(object):
                 for key, ind in self.individuals_dict.items():
                     child = deepcopy(ind)
                     child.mutate(self.max_id)
+                    child.already_evaluated = False
                     self.individuals_dict[self.max_id] = child
                     self.max_id += 1
 
@@ -126,6 +120,7 @@ class Population(object):
             for key, ind in self.individuals_dict.items():
                 child = deepcopy(ind)
                 child.mutate(self.max_id)
+                child.already_evaluated = False
                 self.individuals_dict[self.max_id] = child
                 self.max_id += 1
 
@@ -135,8 +130,9 @@ class Population(object):
 
     def add_random_inds(self, num_random=1):
         for _ in range(num_random):
-            self.individuals_dict[self.max_id] = Individual(self.max_id, self.speed, self.eval_time, self.body_length,
-                                                            self.num_legs, self.development)
+            self.individuals_dict[self.max_id] = Individual(self.max_id, self.num_env, self.speed, self.eval_time,
+                                                            self.body_length, self.num_legs, self.development,
+                                                            self.fitness_stat)
             self.max_id += 1
 
     def update_dominance(self):
