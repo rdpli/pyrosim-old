@@ -1,7 +1,13 @@
+import sys
 import pickle
 import numpy as np
 from replicators import Population
 
+
+SEED = int(sys.argv[1])
+START_RUN_IDX = float(sys.argv[2])
+END_RUN_IDX = int(sys.argv[3])
+# NUM_RUNS = 30
 
 POP_SIZE = 30
 GENS = 1000
@@ -9,9 +15,6 @@ NUM_ENV = 4
 EVAL_TIME = 500
 FIT_STAT = np.min
 
-# NUM_RUNS = 30
-START_RUN_IDX = 0
-END_RUN_IDX = 4
 
 for run in range(START_RUN_IDX, END_RUN_IDX):
     for develop in [True, False]:
