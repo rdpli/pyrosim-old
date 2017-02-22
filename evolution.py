@@ -9,13 +9,14 @@ SEED = int(sys.argv[1])
 POP_SIZE = 30
 GENS = 1000
 NUM_ENV = 4
-EVAL_TIME = 500
+EVAL_TIME = 1000
 FIT_STAT = np.min
+SPEED = 0.1
 
 
 for develop in [True, False]:
 
-    pop = Population(POP_SIZE, num_env=NUM_ENV, development=develop, fitness_stat=FIT_STAT)
+    pop = Population(POP_SIZE, num_env=NUM_ENV, development=develop, fitness_stat=FIT_STAT, speed=SPEED)
 
     for gen in range(GENS):
         pop.create_children_through_mutation()
