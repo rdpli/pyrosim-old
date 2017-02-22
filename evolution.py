@@ -25,7 +25,8 @@ for run in range(NUM_RUNS):
             pop.print_non_dominated()
             pop.gen += 1
 
-        f = open('data/{0}_robot_{1}.p'.format(develop, run), 'w')
+        exp_name = "Devo" if develop else "Evo"
+        f = open('data/Exp_{0}_Run_{1}.p'.format(exp_name, run), 'w')
         pickle.dump(pop, f)
         f.close()
 
