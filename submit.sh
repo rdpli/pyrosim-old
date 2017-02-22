@@ -9,7 +9,7 @@ echo "Using number of runs: " $1
 for x in `seq 1 $1`
 do
 	seed=${x}
-	qsub -vARG_SEED=${seed} $HOME/pkg/pyrosim/single_runner.pbs
+	qsub -vARG_SEED=${seed} ./single_runner.pbs
 	echo "Run $x started with seed $seed"
 	sleep 1;
 done
