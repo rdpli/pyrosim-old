@@ -2,9 +2,10 @@ import numpy as np
 
 
 class Vehicle:
-    def __init__(self, sim, synaptic_weights, speed, eval_time, body_length, num_legs, development, rgb=(0, 1, 0.75)):
+    def __init__(self, sim, synaptic_weights, speed, eval_time, body_length, num_legs, development_type,
+                 rgb=(0, 1, 0.75)):
         self.sim = sim
-        self.development = development
+        self.development_type = development_type
         self.synaptic_weights = synaptic_weights
         self.speed = speed
         self.eval_time = eval_time
@@ -81,11 +82,11 @@ class Vehicle:
         for sensor_idx in range(self.num_legs + 1):
             for motor_idx in range(2 * self.num_legs):
 
-                if self.development:
+                if self.development_type > 0:
                     sim.Send_Changing_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=(self.num_legs + 1) + motor_idx,
                                               start_weight=self.synaptic_weights[0][sensor_idx, motor_idx],
                                               end_weight=self.synaptic_weights[1][sensor_idx, motor_idx],
-                                              end_time=self.eval_time)
+                                              end_time=self.eval_time, development_type=self.development_type)
 
                 else:
                     sim.Send_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=(self.num_legs + 1) + motor_idx,

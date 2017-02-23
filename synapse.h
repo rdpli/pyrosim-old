@@ -9,6 +9,7 @@ private:
 	int targetNeuronIndex;
 	int start_time;
 	int end_time;
+	int development_type;
 
 	double weight;
 	double start_weight;

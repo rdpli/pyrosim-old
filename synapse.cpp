@@ -19,6 +19,8 @@ SYNAPSE::SYNAPSE(void) {
 
 	    std::cin >> end_time;
 
+	    std::cin >> development_type;
+
 
         weight = start_weight;
         weight_increment = 0.f;
@@ -55,7 +57,12 @@ void SYNAPSE::Update_Weight(int t){
 
 	if ( (t >= start_time) and (t < end_time) ) {
 
-		weight = weight + weight_increment;
+        if ( development_type > 1 ) {
+            weight = weight + weight_increment;
+        }
+        else{
+            weight = end_weight;
+        }
 
 		if (isnan(weight)){
 
@@ -77,7 +84,9 @@ void SYNAPSE::Print(void) {
 
         std::cerr << start_time << " ";
 
-        std::cerr << end_time << "\n";
+        std::cerr << end_time << " ";
+
+        std::cerr << development_type << "\n";
 }
 
 #endif

@@ -6,15 +6,15 @@ from environments import Environment
 
 
 class Individual(object):
-    def __init__(self, idx, num_env, speed, eval_time, body_length, num_legs, development, fitness_stat):
+    def __init__(self, idx, num_env, speed, eval_time, body_length, num_legs, development_type, fitness_stat):
         self.num_env = num_env
         self.sim = [None for _ in range(num_env)]
         self.speed = speed
         self.eval_time = eval_time
         self.body_length = body_length
         self.num_legs = num_legs
-        self.development = development
-        if development:
+        self.development_type = development_type
+        if development_type > 0:
             self.genome = np.random.random((2, num_legs + 1, 2 * num_legs)) * 2 - 1
         else:
             self.genome = np.random.random((num_legs+1, 2*num_legs)) * 2 - 1
@@ -36,7 +36,7 @@ class Individual(object):
         for e in range(self.num_env):
             self.sim[e] = PYROSIM(playPaused=pause, evalTime=eval_time, playBlind=blind)
             _robot = Vehicle(self.sim[e], self.genome, self.speed, self.eval_time, self.body_length, self.num_legs,
-                             self.development)
+                             self.development_type)
             _env = Environment(e, self.sim[e], self.body_length, 1+2*self.num_legs)
             self.sim[e].Start()
 
@@ -75,7 +75,7 @@ class Individual(object):
 
 
 class Population(object):
-    def __init__(self, size, num_env=4, eval_time=500, speed=0.3, body_length=0.1, num_legs=4, development=False,
+    def __init__(self, size, num_env=4, eval_time=500, speed=0.3, body_length=0.1, num_legs=4, development_type=0,
                  fitness_stat=np.min):
         self.size = size
         self.gen = 0
@@ -86,7 +86,7 @@ class Population(object):
         self.speed = speed
         self.body_length = body_length
         self.num_legs = num_legs
-        self.development = development
+        self.development_type = development_type
         self.fitness_stat = fitness_stat
         self.non_dominated_size = 0
         self.pareto_levels = {}
@@ -131,7 +131,7 @@ class Population(object):
     def add_random_inds(self, num_random=1):
         for _ in range(num_random):
             self.individuals_dict[self.max_id] = Individual(self.max_id, self.num_env, self.speed, self.eval_time,
-                                                            self.body_length, self.num_legs, self.development,
+                                                            self.body_length, self.num_legs, self.development_type,
                                                             self.fitness_stat)
             self.max_id += 1
 

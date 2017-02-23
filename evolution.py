@@ -14,9 +14,9 @@ FIT_STAT = np.min
 SPEED = 0.1
 
 
-for develop in [True, False]:
+for development_type in [0, 1, 2]:
 
-    pop = Population(POP_SIZE, num_env=NUM_ENV, development=develop, fitness_stat=FIT_STAT, speed=SPEED)
+    pop = Population(POP_SIZE, num_env=NUM_ENV, development_type=development_type, fitness_stat=FIT_STAT, speed=SPEED)
 
     for gen in range(GENS):
         pop.create_children_through_mutation()
@@ -27,13 +27,12 @@ for develop in [True, False]:
         pop.print_non_dominated()
         pop.gen += 1
 
-    exp_name = "Devo" if develop else "Evo"
-    f = open('data/Exp_{0}_Run_{1}.p'.format(exp_name, SEED), 'w')
+    f = open('data/Dev_{0}_Run_{1}.p'.format(development_type, SEED), 'w')
     pickle.dump(pop, f)
     f.close()
 
 
-# r = open('data/Exp_Devo_Run_0.p', 'r')
+# r = open('data/Dev_1_Run_1.p', 'r')
 # final_pop = pickle.load(r)
 #
 # sorted_inds = sorted(final_pop.individuals_dict, key=lambda k: final_pop.individuals_dict[k].fitness)
