@@ -14,16 +14,16 @@ from scipy.stats import mannwhitneyu
 
 
 data = []
-for exp_name in ["Devo", "Evo"]:
+for exp_name in range(3):
     for run in range(1, 31):
-        r = open('/home/sam/Archive/skriegma/Neurogenesis/data/Exp_{0}_Run_{1}.p'.format(exp_name, run), 'r')
+        r = open('/home/sam/Archive/skriegma/Neurogenesis/data/Dev_{0}_Run_{1}.p'.format(exp_name, run), 'r')
         final_pop = pickle.load(r)
         sorted_inds = sorted(final_pop.individuals_dict, key=lambda k: final_pop.individuals_dict[k].fitness)
         data += [(exp_name, run, final_pop.individuals_dict[sorted_inds[-1]].fitness)]
         r.close()
 
-e = [f for (n, r, f) in data if n == "Evo"]
-d = [f for (n, r, f) in data if n == "Devo"]
+e = [f for (n, r, f) in data if n == 0]
+d = [f for (n, r, f) in data if n == 1]
 
 print np.mean(e), np.mean(d)
 print np.std(e), np.std(d)
