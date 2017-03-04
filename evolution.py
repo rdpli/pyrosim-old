@@ -7,14 +7,14 @@ from replicators import Population
 SEED = int(sys.argv[1])
 
 POP_SIZE = 30
-GENS = 1000
+GENS = 2000
 NUM_ENV = 4
 EVAL_TIME = 1000
 FIT_STAT = np.min
 SPEED = 0.1
 
 
-for development_type in [0, 1, 2]:
+for development_type in [0, 1]:
 
     pop = Population(POP_SIZE, num_env=NUM_ENV, development_type=development_type, fitness_stat=FIT_STAT, speed=SPEED)
 

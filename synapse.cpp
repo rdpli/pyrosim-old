@@ -19,19 +19,6 @@ SYNAPSE::SYNAPSE(void) {
 
 	    std::cin >> end_time;
 
-	    std::cin >> development_type;
-
-
-        weight = start_weight;
-        weight_increment = 0.f;
-
-        if (end_time - start_time <= 0){
-            weight_increment = 0.f;
-        }
-        else{
-            weight_increment = (end_weight - start_weight) / double(end_time - start_time);
-        }
-
 }
 
 SYNAPSE::~SYNAPSE(void) {
@@ -55,21 +42,21 @@ double SYNAPSE::Get_Weight(void) {
 
 void SYNAPSE::Update_Weight(int t){
 
-	if ( (t >= start_time) and (t < end_time) ) {
+    if (t < start_time){
+        weight = start_weight;
+    }
 
-        if ( development_type > 1 ) {
-            weight = weight + weight_increment;
-        }
-        else{
-            weight = end_weight;
-        }
-
-		if (isnan(weight)){
-
-			std::cerr << " weight is nan ";
-
-		}
+	if ( (t >= start_time) and (t < end_time) and (end_time > start_time) ) {
+        weight = weight + (end_weight - start_weight) / double(end_time - start_time);
 	}
+
+	if ( t > end_time ) {
+        weight = end_weight;
+	}
+
+	if ( isnan(weight) ){
+			std::cerr << " weight is nan ";
+		}
 }
 
 void SYNAPSE::Print(void) {
@@ -86,7 +73,6 @@ void SYNAPSE::Print(void) {
 
         std::cerr << end_time << " ";
 
-        std::cerr << development_type << "\n";
 }
 
 #endif

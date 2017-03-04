@@ -14,10 +14,9 @@ class Individual(object):
         self.body_length = body_length
         self.num_legs = num_legs
         self.development_type = development_type
-        if development_type > 0:
-            self.genome = np.random.random((2, num_legs + 1, 2 * num_legs)) * 2 - 1
-        else:
-            self.genome = np.random.random((num_legs+1, 2*num_legs)) * 2 - 1
+        self.weight_genes = np.random.random((2, num_legs+1, 2*num_legs)) * 2 - 1
+        self.time_genes = np.random.randint(1, eval_time, (1, num_legs+1, 2*num_legs))
+        self.genome = np.concatenate([self.weight_genes, self.time_genes])
         self.id = idx
         self.fitness_stat = fitness_stat
         self.fitness = 0
@@ -53,10 +52,18 @@ class Individual(object):
     def mutate(self, new_id, prob=None):
         if prob is None:
             prob = 1/float(self.genome.size)
-        change = np.random.normal(scale=np.abs(self.genome))
-        new_genome = np.clip(self.genome + change, -1, 1)
-        mask = np.random.random(self.genome.shape) < prob
-        self.genome[mask] = new_genome[mask]
+
+        weight_change = np.random.normal(scale=np.abs(self.weight_genes))
+        new_weight_genes = np.clip(self.weight_genes + weight_change, -1, 1)
+        mask = np.random.random(self.weight_genes.shape) < prob
+        self.weight_genes[mask] = new_weight_genes[mask]
+
+        time_change = np.random.randint(1, self.eval_time, (1, self.num_legs+1, 2*self.num_legs))
+        new_time_genes = self.time_genes + time_change
+        mask = np.random.random(self.time_genes.shape) < prob
+        self.time_genes[mask] = new_time_genes[mask]
+
+        self.genome = np.concatenate([self.weight_genes, self.time_genes])
         self.id = new_id
         self.already_evaluated = False
 

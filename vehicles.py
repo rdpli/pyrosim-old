@@ -49,14 +49,14 @@ class Vehicle:
                            x=np.cos(theta) * self.body_length / 2.,
                            y=np.sin(theta) * self.body_length / 2.,
                            z=self.leg_length + self.leg_radius, n1=-np.sin(theta), n2=np.cos(theta), n3=0,
-                           # lo=-np.pi/3., hi=np.pi/3.
+                           lo=-np.pi/4., hi=np.pi/4.
                            )
 
             sim.Send_Joint(jointID=knee_id, firstObjectID=femur_id, secondObjectID=tibia_id,
                            x=np.cos(theta) * (self.body_length / 2.0 + self.leg_length),
                            y=np.sin(theta) * (self.body_length / 2.0 + self.leg_length),
                            z=self.leg_length + self.leg_radius, n1=-np.sin(theta), n2=np.cos(theta), n3=0,
-                           # lo=-np.pi/3., hi=np.pi/3.
+                           lo=-np.pi/4., hi=np.pi/4.
                            )
 
             sim.Send_Touch_Sensor(sensorID=leg_idx, objectID=tibia_id)
@@ -82,13 +82,20 @@ class Vehicle:
         for sensor_idx in range(self.num_legs + 1):
             for motor_idx in range(2 * self.num_legs):
 
-                if self.development_type > 0:
+                if self.development_type == 1:
+                    transition_time = self.synaptic_weights[2][sensor_idx, motor_idx]
                     sim.Send_Changing_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=(self.num_legs + 1) + motor_idx,
                                               start_weight=self.synaptic_weights[0][sensor_idx, motor_idx],
                                               end_weight=self.synaptic_weights[1][sensor_idx, motor_idx],
-                                              end_time=self.eval_time, development_type=self.development_type)
+                                              start_time=int(transition_time), end_time=int(transition_time))
 
-                else:
+                elif self.development_type == 2:
+                    sim.Send_Changing_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=(self.num_legs + 1) + motor_idx,
+                                              start_weight=self.synaptic_weights[0][sensor_idx, motor_idx],
+                                              end_weight=self.synaptic_weights[1][sensor_idx, motor_idx],
+                                              end_time=self.eval_time)
+
+                else:  # no development
                     sim.Send_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=(self.num_legs + 1) + motor_idx,
                                      weight=self.synaptic_weights[sensor_idx, motor_idx])
 
