@@ -97,5 +97,5 @@ class Vehicle:
 
                 else:  # no development
                     sim.Send_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=(self.num_legs + 1) + motor_idx,
-                                     weight=self.synaptic_weights[sensor_idx, motor_idx])
+                                     weight=self.synaptic_weights[0][sensor_idx, motor_idx])
 
