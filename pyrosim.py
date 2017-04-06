@@ -21,8 +21,8 @@ class PYROSIM:
         if (playBlind == True):
 
             commandsToSend.append('-blind')
-        # else:
-        #     commandsToSend.append('-notex')
+        else:
+            commandsToSend.append('-notex')
 
         if (playPaused == True):
             commandsToSend.append('-pause')
