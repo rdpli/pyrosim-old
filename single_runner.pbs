@@ -1,5 +1,5 @@
 #PBS -j oe
-#PBS -N Cats
+#PBS -N NeedleInAHaystack
 #PBS -m a
 #PBS -m b
 #PBS -o $HOME/scratch/Neurogenesis/phototaxis_$ARG_SEED.log

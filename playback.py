@@ -14,7 +14,7 @@ from scipy.stats import mannwhitneyu
 
 
 data = []
-for exp_name in range(3):
+for exp_name in [0, 1]:
     for run in range(1, 31):
         r = open('/home/sam/Archive/skriegma/Neurogenesis/data/Dev_{0}_Run_{1}.p'.format(exp_name, run), 'r')
         final_pop = pickle.load(r)
@@ -29,3 +29,4 @@ print np.mean(e), np.mean(d)
 print np.std(e), np.std(d)
 print mannwhitneyu(e, d)
 
+# final_pop.individuals_dict[sorted_inds[-1]].start_evaluation(blind=False, eval_time=500, pause=True)

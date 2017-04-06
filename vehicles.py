@@ -30,6 +30,7 @@ class Vehicle:
         hip_id = 0
         knee_id = 1
         theta = 0.
+        leg_ids = [1]
         for leg_idx in range(self.num_legs):
             sim.Send_Cylinder(objectID=femur_id,
                               x=np.cos(theta) * (self.body_length + self.leg_length) / 2.,
@@ -49,14 +50,14 @@ class Vehicle:
                            x=np.cos(theta) * self.body_length / 2.,
                            y=np.sin(theta) * self.body_length / 2.,
                            z=self.leg_length + self.leg_radius, n1=-np.sin(theta), n2=np.cos(theta), n3=0,
-                           lo=-np.pi/4., hi=np.pi/4.
+                           lo=-np.pi / 4., hi=np.pi / 4.
                            )
 
             sim.Send_Joint(jointID=knee_id, firstObjectID=femur_id, secondObjectID=tibia_id,
                            x=np.cos(theta) * (self.body_length / 2.0 + self.leg_length),
                            y=np.sin(theta) * (self.body_length / 2.0 + self.leg_length),
                            z=self.leg_length + self.leg_radius, n1=-np.sin(theta), n2=np.cos(theta), n3=0,
-                           lo=-np.pi/4., hi=np.pi/4.
+                           lo=-np.pi / 4., hi=np.pi / 4.
                            )
 
             sim.Send_Touch_Sensor(sensorID=leg_idx, objectID=tibia_id)
@@ -67,35 +68,100 @@ class Vehicle:
             hip_id += 2
             knee_id += 2
 
+            leg_ids += [femur_id]
+
         # end for
 
-        sim.Send_Light_Sensor(sensorID=self.num_legs, objectID=pelvis_id)
+        for n, i in enumerate(leg_ids):
+            sim.Send_Light_Sensor(sensorID=self.num_legs + n, objectID=i)
+
+
+
+        # # eyes
+        # eye_id = femur_id
+        # socket_id = hip_id
+        # light_sensor_id = self.num_legs
+        # sim.Send_Cylinder(objectID=eye_id,
+        #                   x=self.body_length / 3., y=self.body_length / 3.,
+        #                   z=self.body_length + self.leg_radius + self.body_height / 2.,
+        #                   length=0, radius=self.leg_radius/3.,
+        #                   r=1, g=1, b=0)
+        # sim.Send_Joint(jointID=socket_id, firstObjectID=pelvis_id, secondObjectID=eye_id,
+        #                x=self.body_length / 3., y=self.body_length / 3.,
+        #                z=self.body_length + self.leg_radius + self.body_height / 2.,
+        #                lo=0.0, hi=0.01)
+        # sim.Send_Light_Sensor(sensorID=light_sensor_id, objectID=eye_id)
+        #
+        # eye_id += 1
+        # socket_id += 1
+        # light_sensor_id += 1
+        # sim.Send_Cylinder(objectID=eye_id,
+        #                   x=-self.body_length / 3., y=-self.body_length / 3.,
+        #                   z=self.body_length + self.leg_radius + self.body_height / 2.,
+        #                   length=0, radius=self.leg_radius / 3.,
+        #                   r=1, g=1, b=0)
+        # sim.Send_Joint(jointID=socket_id, firstObjectID=pelvis_id, secondObjectID=eye_id,
+        #                x=-self.body_length / 3., y=-self.body_length / 3.,
+        #                z=self.body_length + self.leg_radius + self.body_height / 2.,
+        #                lo=0.0, hi=0.01)
+        # sim.Send_Light_Sensor(sensorID=light_sensor_id, objectID=eye_id)
+        #
+        # eye_id += 1
+        # socket_id += 1
+        # light_sensor_id += 1
+        # sim.Send_Cylinder(objectID=eye_id,
+        #                   x=self.body_length / 3., y=-self.body_length / 3.,
+        #                   z=self.body_length + self.leg_radius + self.body_height / 2.,
+        #                   length=0, radius=self.leg_radius / 3.,
+        #                   r=1, g=1, b=0)
+        # sim.Send_Joint(jointID=socket_id, firstObjectID=pelvis_id, secondObjectID=eye_id,
+        #                x=self.body_length / 3., y=-self.body_length / 3.,
+        #                z=self.body_length + self.leg_radius + self.body_height / 2.,
+        #                lo=0.0, hi=0.01)
+        # sim.Send_Light_Sensor(sensorID=light_sensor_id, objectID=eye_id)
+        #
+        # eye_id += 1
+        # socket_id += 1
+        # light_sensor_id += 1
+        # sim.Send_Cylinder(objectID=eye_id,
+        #                   x=-self.body_length / 3., y=self.body_length / 3.,
+        #                   z=self.body_length + self.leg_radius + self.body_height / 2.,
+        #                   length=0, radius=self.leg_radius / 3.,
+        #                   r=1, g=1, b=0)
+        # sim.Send_Joint(jointID=socket_id, firstObjectID=pelvis_id, secondObjectID=eye_id,
+        #                x=-self.body_length / 3., y=self.body_length / 3.,
+        #                z=self.body_length + self.leg_radius + self.body_height / 2.,
+        #                lo=0.0, hi=0.01)
+        # sim.Send_Light_Sensor(sensorID=light_sensor_id, objectID=eye_id)
+
+        # fitness sensor
+        sim.Send_Light_Sensor(sensorID=self.num_legs+4, objectID=pelvis_id)
 
     def send_brain(self, sim):
 
-        for sensor_idx in range(self.num_legs + 1):
+        for sensor_idx in range(self.num_legs + 4):
             sim.Send_Sensor_Neuron(neuronID=sensor_idx, sensorID=sensor_idx)
 
         for motor_idx in range(2 * self.num_legs):
-            sim.Send_Motor_Neuron(neuronID=(self.num_legs + 1) + motor_idx, jointID=motor_idx, tau=self.speed)
+            sim.Send_Motor_Neuron(neuronID=(self.num_legs + 4) + motor_idx, jointID=motor_idx, tau=self.speed)
 
-        for sensor_idx in range(self.num_legs + 1):
+        for sensor_idx in range(self.num_legs + 4):
             for motor_idx in range(2 * self.num_legs):
+                target_neuron = (self.num_legs + 4) + motor_idx
 
                 if self.development_type == 1:
                     transition_time = self.synaptic_weights[2][sensor_idx, motor_idx]
-                    sim.Send_Changing_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=(self.num_legs + 1) + motor_idx,
+                    sim.Send_Changing_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=target_neuron,
                                               start_weight=self.synaptic_weights[0][sensor_idx, motor_idx],
                                               end_weight=self.synaptic_weights[1][sensor_idx, motor_idx],
                                               start_time=int(transition_time), end_time=int(transition_time))
 
                 elif self.development_type == 2:
-                    sim.Send_Changing_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=(self.num_legs + 1) + motor_idx,
+                    sim.Send_Changing_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=target_neuron,
                                               start_weight=self.synaptic_weights[0][sensor_idx, motor_idx],
                                               end_weight=self.synaptic_weights[1][sensor_idx, motor_idx],
                                               end_time=self.eval_time)
 
                 else:  # no development
-                    sim.Send_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=(self.num_legs + 1) + motor_idx,
+                    sim.Send_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=target_neuron,
                                      weight=self.synaptic_weights[0][sensor_idx, motor_idx])
-

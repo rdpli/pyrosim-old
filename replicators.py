@@ -14,8 +14,8 @@ class Individual(object):
         self.body_length = body_length
         self.num_legs = num_legs
         self.development_type = development_type
-        self.weight_genes = np.random.random((2, num_legs+1, 2*num_legs)) * 2 - 1
-        self.time_genes = np.random.randint(1, eval_time, (1, num_legs+1, 2*num_legs))
+        self.weight_genes = np.random.random((2, num_legs+4, 2*num_legs)) * 2 - 1
+        self.time_genes = np.random.randint(1, eval_time, (1, num_legs+4, 2*num_legs))
         self.genome = np.concatenate([self.weight_genes, self.time_genes])
         self.id = idx
         self.fitness_stat = fitness_stat
@@ -42,7 +42,10 @@ class Individual(object):
     def compute_fitness(self):
         for e in range(self.num_env):
             self.sim[e].Wait_To_Finish()
-            dist = self.sim[e].Get_Sensor_Data(sensorID=self.num_legs)
+            dist = self.sim[e].Get_Sensor_Data(sensorID=self.num_legs+4)
+
+            # for i in range(1, 5):
+            #     print self.sim[e].Get_Sensor_Data(sensorID=self.num_legs + i)
             self.fitness += [dist[-1]]
 
         self.fitness = self.fitness_stat(self.fitness)
@@ -58,7 +61,7 @@ class Individual(object):
         mask = np.random.random(self.weight_genes.shape) < prob
         self.weight_genes[mask] = new_weight_genes[mask]
 
-        time_change = np.random.randint(1, self.eval_time, (1, self.num_legs+1, 2*self.num_legs))
+        time_change = np.random.randint(1, self.eval_time, (1, self.num_legs+4, 2*self.num_legs))
         new_time_genes = self.time_genes + time_change
         mask = np.random.random(self.time_genes.shape) < prob
         self.time_genes[mask] = new_time_genes[mask]
