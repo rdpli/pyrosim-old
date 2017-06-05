@@ -10,4 +10,4 @@
 
 PATH=$HOME/anaconda/bin:$PATH
 cd $HOME/pkg/pyrosim/
-PYTHONPATH=$HOME/pkg/pyrosim/ $HOME/anaconda/bin/python ./evolution.py $ARG_SEED
+PYTHONPATH=$HOME/pkg/pyrosim/ $HOME/anaconda/bin/python ./evo_single_run.py $ARG_SEED
