@@ -104,7 +104,8 @@ class Individual(object):
         self.already_evaluated = False
 
     def dominates(self, other):
-        if self.development_type == 0:  # use each env score and age (3 objectives total)
+        # TODO: ...the pareto front explodes when using 2 fitness objectives
+        if self.development_type == -1:  # use each env score and age (3 objectives total)
             if self.env_scores[0] > other.env_scores[0] and self.env_scores[1] >= other.env_scores[1] and self.age <= other.age:
                 return True
 
@@ -157,7 +158,7 @@ class Population(object):
         self.evaluate()
 
     def print_non_dominated(self):
-        print self.pareto_levels[0]
+        print self.gen, self.pareto_levels[0]
 
     def evaluate(self, blind=True, pause=False):
         for key, ind in self.individuals_dict.items():

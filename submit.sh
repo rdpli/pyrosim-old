@@ -11,5 +11,5 @@ do
 	seed=${x}
 	qsub -vARG_SEED=${seed} ./single_runner.pbs
 	echo "Run $x started with seed $seed"
-	sleep 1;
+#	sleep 1;
 done
