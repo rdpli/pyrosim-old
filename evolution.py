@@ -11,12 +11,11 @@ GENS = 1000
 NUM_ENV = 2
 EVAL_TIME = 1000
 FIT_STAT = np.sum
-SPEED = 0.1
 
 
-for development_type in [1]:
+for development_type in [0, 1]:
 
-    pop = Population(POP_SIZE, num_env=NUM_ENV, development_type=development_type, fitness_stat=FIT_STAT, speed=SPEED)
+    pop = Population(POP_SIZE, num_env=NUM_ENV, development_type=development_type, fitness_stat=FIT_STAT)
 
     for gen in range(GENS):
         pop.create_children_through_mutation()
