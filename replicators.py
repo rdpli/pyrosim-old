@@ -21,6 +21,7 @@ class Individual(object):
         self.genome = {env: {"weights": self.weight_genes[env], "transition_times": self.time_genes[env]}
                        for env in range(num_env)}
         self.id = idx
+        self.env_scores = []
         self.fitness_stat = fitness_stat
         self.fitness = 0
         self.age = 0
@@ -68,12 +69,15 @@ class Individual(object):
             self.sim[e].Start()
 
     def compute_fitness(self):
+        self.env_scores = []
+        self.fitness = 0
+
         for e in range(self.num_env):
             self.sim[e].Wait_To_Finish()
             dist = self.sim[e].Get_Sensor_Data(sensorID=self.num_legs)
-            self.fitness += [dist[-1]]
+            self.env_scores += [dist[-1]]
 
-        self.fitness = self.fitness_stat(self.fitness)
+        self.fitness = self.fitness_stat(self.env_scores)
         self.already_evaluated = True
         self.sim = [None for _ in range(self.num_env)]
 
@@ -100,20 +104,37 @@ class Individual(object):
         self.already_evaluated = False
 
     def dominates(self, other):
-        if self.fitness > other.fitness and self.age <= other.age and self.dev_compression <= other.dev_compression:
-            return True
+        if self.development_type == 0:  # use each env score and age (3 objectives total)
+            if self.env_scores[0] > other.env_scores[0] and self.env_scores[1] >= other.env_scores[1] and self.age <= other.age:
+                return True
 
-        elif self.fitness == other.fitness and self.age < other.age and self.dev_compression <= other.dev_compression:
-            return True
+            elif self.env_scores[0] == other.env_scores[0] and self.env_scores[1] > other.env_scores[1] and self.age <= other.age:
+                return True
 
-        elif self.fitness == other.fitness and self.age == other.age and self.dev_compression < other.dev_compression:
-            return True
+            elif self.env_scores[0] == other.env_scores[0] and self.env_scores[1] == other.env_scores[1] and self.age < other.age:
+                return True
 
-        elif self.fitness == other.fitness and self.age == other.age and self.dev_compression == other.dev_compression and self.id < other.id:
-            return True
+            elif self.env_scores[0] == other.env_scores[0] and self.env_scores[1] == other.env_scores[1] and self.age == other.age and self.id < other.id:
+                return True
 
-        else:
-            return False
+            else:
+                return False
+
+        else:  # use combined env scores, developmental compression and age (3 objectives total)
+            if self.fitness > other.fitness and self.age <= other.age and self.dev_compression <= other.dev_compression:
+                return True
+
+            elif self.fitness == other.fitness and self.age < other.age and self.dev_compression <= other.dev_compression:
+                return True
+
+            elif self.fitness == other.fitness and self.age == other.age and self.dev_compression < other.dev_compression:
+                return True
+
+            elif self.fitness == other.fitness and self.age == other.age and self.dev_compression == other.dev_compression and self.id < other.id:
+                return True
+
+            else:
+                return False
 
 
 class Population(object):
@@ -141,7 +162,6 @@ class Population(object):
     def evaluate(self, blind=True, pause=False):
         for key, ind in self.individuals_dict.items():
             if not ind.already_evaluated:
-                ind.fitness = []
                 ind.start_evaluation(self.eval_time, blind, pause)
 
         for key, ind in self.individuals_dict.items():
