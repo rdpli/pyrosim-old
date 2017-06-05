@@ -14,9 +14,12 @@ class Individual(object):
         self.body_length = body_length
         self.num_legs = num_legs
         self.development_type = development_type
-        self.weight_genes = np.random.random((2, num_legs+1, 2*num_legs)) * 2 - 1
-        self.time_genes = np.random.randint(1, eval_time, (1, num_legs+1, 2*num_legs))
-        self.genome = np.concatenate([self.weight_genes, self.time_genes])
+        # self.weight_genes = np.random.random((2, num_legs+1, 2*num_legs)) * 2 - 1
+        # self.time_genes = np.random.randint(1, eval_time, (1, num_legs+1, 2*num_legs))
+        self.weight_genes = np.array([np.random.random((2, num_legs+1, 2*num_legs)) * 2 - 1 for _ in range(num_env)])
+        self.time_genes = np.array([np.random.randint(1, eval_time, (num_legs+1, 2*num_legs)) for _ in range(num_env)])
+        self.genome = {env: {"weights": self.weight_genes[env], "transition_times": self.time_genes[env]}
+                       for env in range(num_env)}
         self.id = idx
         self.fitness_stat = fitness_stat
         self.fitness = 0
@@ -34,7 +37,7 @@ class Individual(object):
     def start_evaluation(self, eval_time, blind, pause):
         for e in range(self.num_env):
             self.sim[e] = PYROSIM(playPaused=pause, evalTime=eval_time, playBlind=blind)
-            _robot = Vehicle(self.sim[e], self.genome, self.speed, self.eval_time, self.body_length, self.num_legs,
+            _robot = Vehicle(self.sim[e], self.genome[e], self.speed, self.eval_time, self.body_length, self.num_legs,
                              self.development_type)
             _env = Environment(e, self.sim[e], self.body_length, 1+2*self.num_legs)
             self.sim[e].Start()
@@ -51,19 +54,21 @@ class Individual(object):
 
     def mutate(self, new_id, prob=None):
         if prob is None:
-            prob = 1/float(self.genome.size)
+            prob = 1 / float((self.num_legs+1)*2*self.num_legs*self.num_env)  # one per brain
 
         weight_change = np.random.normal(scale=np.abs(self.weight_genes))
         new_weight_genes = np.clip(self.weight_genes + weight_change, -1, 1)
         mask = np.random.random(self.weight_genes.shape) < prob
         self.weight_genes[mask] = new_weight_genes[mask]
 
-        time_change = np.random.randint(1, self.eval_time, (1, self.num_legs+1, 2*self.num_legs))
+        time_change = np.random.randint(1, self.eval_time, (self.num_legs+1, 2*self.num_legs))
         new_time_genes = self.time_genes + time_change
         mask = np.random.random(self.time_genes.shape) < prob
         self.time_genes[mask] = new_time_genes[mask]
 
-        self.genome = np.concatenate([self.weight_genes, self.time_genes])
+        # self.genome = np.concatenate([self.weight_genes, self.time_genes])
+        self.genome = {env: {"weights": self.weight_genes[env], "transition_times": self.time_genes[env]}
+                       for env in range(self.num_env)}
         self.id = new_id
         self.already_evaluated = False
 
@@ -82,8 +87,8 @@ class Individual(object):
 
 
 class Population(object):
-    def __init__(self, size, num_env=4, eval_time=500, speed=0.3, body_length=0.1, num_legs=4, development_type=0,
-                 fitness_stat=np.min):
+    def __init__(self, size, num_env=2, eval_time=1000, speed=0.1, body_length=0.1, num_legs=4, development_type=0,
+                 fitness_stat=np.sum):
         self.size = size
         self.gen = 0
         self.individuals_dict = {}

@@ -83,19 +83,19 @@ class Vehicle:
             for motor_idx in range(2 * self.num_legs):
 
                 if self.development_type == 1:
-                    transition_time = self.synaptic_weights[2][sensor_idx, motor_idx]
+                    transition_time = self.synaptic_weights["transition_times"][sensor_idx, motor_idx]
                     sim.Send_Changing_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=(self.num_legs + 1) + motor_idx,
-                                              start_weight=self.synaptic_weights[0][sensor_idx, motor_idx],
-                                              end_weight=self.synaptic_weights[1][sensor_idx, motor_idx],
+                                              start_weight=self.synaptic_weights["weights"][0][sensor_idx, motor_idx],
+                                              end_weight=self.synaptic_weights["weights"][1][sensor_idx, motor_idx],
                                               start_time=int(transition_time), end_time=int(transition_time))
 
                 elif self.development_type == 2:
                     sim.Send_Changing_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=(self.num_legs + 1) + motor_idx,
-                                              start_weight=self.synaptic_weights[0][sensor_idx, motor_idx],
-                                              end_weight=self.synaptic_weights[1][sensor_idx, motor_idx],
+                                              start_weight=self.synaptic_weights["weights"][0][sensor_idx, motor_idx],
+                                              end_weight=self.synaptic_weights["weights"][1][sensor_idx, motor_idx],
                                               end_time=self.eval_time)
 
                 else:  # no development
                     sim.Send_Synapse(sourceNeuronID=sensor_idx, targetNeuronID=(self.num_legs + 1) + motor_idx,
-                                     weight=self.synaptic_weights[0][sensor_idx, motor_idx])
+                                     weight=self.synaptic_weights["weights"][0][sensor_idx, motor_idx])
 

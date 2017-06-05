@@ -15,10 +15,10 @@ class Environment(object):
             self.place_light_source_to_the_front(sim)
 
         elif env_id == 1:
-            self.place_light_source_to_the_right(sim)
+            self.place_light_source_to_the_back(sim)
 
         elif env_id == 2:
-            self.place_light_source_to_the_back(sim)
+            self.place_light_source_to_the_right(sim)
 
         elif env_id == 3:
             self.place_light_source_to_the_left(sim)
