@@ -2,7 +2,7 @@
 #PBS -N DevCompression
 #PBS -m a
 #PBS -m b
-#PBS -o $HOME/scratch/Neurogenesis/phototaxis_$ARG_SEED.log
+#PBS -o $HOME/scratch/Dev_Compression/phototaxis_$ARG_SEED.log
 #PBS -M skriegma@uvm.edu
 #PBS -l nodes=1:ppn=12,pmem=2gb,pvmem=2gb
 #PBS -l walltime=03:00:00
