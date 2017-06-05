@@ -6,8 +6,8 @@ from replicators import Population
 
 SEED = int(sys.argv[1])
 
-POP_SIZE = 30
-GENS = 10
+POP_SIZE = 50
+GENS = 1000
 NUM_ENV = 2
 EVAL_TIME = 1000
 FIT_STAT = np.sum

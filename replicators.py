@@ -24,6 +24,7 @@ class Individual(object):
         self.fitness_stat = fitness_stat
         self.fitness = 0
         self.age = 0
+        self.dev_compression = self.calc_dev_compression()
         self.dominated_by = []
         self.pareto_level = 0
         self.already_evaluated = False
@@ -34,12 +35,36 @@ class Individual(object):
         new.__dict__.update(deepcopy(self.__dict__, memo))
         return new
 
+    def calc_dev_compression(self):
+
+        if self.development_type == 0:
+            return 0
+
+        trace = {}
+        for env in range(self.num_env):
+            start_weights, final_weights = self.genome[env]["weights"][0], self.genome[env]["weights"][1]
+            transition_times = self.genome[env]["transition_times"]
+
+            trace[env] = [time_step*start_weights for time_step in range(self.eval_time)]
+            for time_step in range(self.eval_time):
+                final_idx = np.where(transition_times <= time_step)
+                trace[env][time_step][final_idx] = time_step*final_weights[final_idx]
+
+        return np.sum(np.abs(np.array(trace[0])-np.array(trace[1])))
+
     def start_evaluation(self, eval_time, blind, pause):
         for e in range(self.num_env):
             self.sim[e] = PYROSIM(playPaused=pause, evalTime=eval_time, playBlind=blind)
-            _robot = Vehicle(self.sim[e], self.genome[e], self.speed, self.eval_time, self.body_length, self.num_legs,
+
+            if self.development_type == 0:
+                this_genome = self.genome[0]  # only use one brain
+            else:
+                this_genome = self.genome[e]  # use different brain for each environment
+
+            _robot = Vehicle(self.sim[e], this_genome, self.speed, self.eval_time, self.body_length, self.num_legs,
                              self.development_type)
             _env = Environment(e, self.sim[e], self.body_length, 1+2*self.num_legs)
+
             self.sim[e].Start()
 
     def compute_fitness(self):
@@ -55,6 +80,8 @@ class Individual(object):
     def mutate(self, new_id, prob=None):
         if prob is None:
             prob = 1 / float((self.num_legs+1)*2*self.num_legs*self.num_env)  # one per brain
+            if self.development_type == 0:
+                prob *= self.num_env
 
         weight_change = np.random.normal(scale=np.abs(self.weight_genes))
         new_weight_genes = np.clip(self.weight_genes + weight_change, -1, 1)
@@ -73,13 +100,16 @@ class Individual(object):
         self.already_evaluated = False
 
     def dominates(self, other):
-        if self.fitness > other.fitness and self.age <= other.age:
+        if self.fitness > other.fitness and self.age <= other.age and self.dev_compression <= other.dev_compression:
             return True
 
-        elif self.fitness == other.fitness and self.age < other.age:
+        elif self.fitness == other.fitness and self.age < other.age and self.dev_compression <= other.dev_compression:
             return True
 
-        elif self.fitness == other.fitness and self.age == other.age and self.id < other.id:
+        elif self.fitness == other.fitness and self.age == other.age and self.dev_compression < other.dev_compression:
+            return True
+
+        elif self.fitness == other.fitness and self.age == other.age and self.dev_compression == other.dev_compression and self.id < other.id:
             return True
 
         else:
@@ -162,9 +192,9 @@ class Population(object):
         for key, ind in self.individuals_dict.items():
             ind.pareto_level = len(ind.dominated_by)
             if ind.pareto_level in self.pareto_levels:
-                self.pareto_levels[ind.pareto_level] += [(ind.id, ind.fitness, ind.age)]
+                self.pareto_levels[ind.pareto_level] += [(ind.id, ind.fitness, ind.age, ind.dev_compression)]
             else:
-                self.pareto_levels[ind.pareto_level] = [(ind.id, ind.fitness, ind.age)]
+                self.pareto_levels[ind.pareto_level] = [(ind.id, ind.fitness, ind.age, ind.dev_compression)]
             if ind.pareto_level == 0:
                 self.non_dominated_size += 1
 
@@ -174,7 +204,7 @@ class Population(object):
         if keep_non_dom_only:  # completely reduce to non-dominated front (most pressure, least diversity)
 
             children = {}
-            for idx, fit, age in self.pareto_levels[0]:
+            for idx, fit, age, compression in self.pareto_levels[0]:
                 children[idx] = self.individuals_dict[idx]
             self.individuals_dict = children
 
@@ -197,7 +227,7 @@ class Population(object):
             children = {}
             for level in sorted(self.pareto_levels):
                 sorted_level = sorted(self.pareto_levels[level], key=lambda x: x[1], reverse=True)
-                for idx, fit, age in sorted_level:
+                for idx, fit, age, compression in sorted_level:
                     if len(children) < self.size:
                         children[idx] = self.individuals_dict[idx]
             self.individuals_dict = children
