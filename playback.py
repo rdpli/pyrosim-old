@@ -1,7 +1,7 @@
 import pickle
 import numpy as np
 import pandas as pd
-from scipy.stats import mannwhitneyu
+from scipy.stats import mannwhitneyu, ttest_ind
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -24,6 +24,7 @@ d = [f for (n, r, f) in data if n == EXP_NAMES[1]]
 print np.mean(e), np.mean(d)
 print np.std(e), np.std(d)
 print mannwhitneyu(e, d)
+print ttest_ind(e, d)
 
 
 df = pd.DataFrame(data=data, columns=["Group", "Run", "Fitness"])
@@ -33,9 +34,10 @@ g = sns.factorplot(x="Group", y="Fitness", data=df, size=4, kind="bar", capsize=
 
 g.despine(left=False, right=False, top=False)
 
-g.set_ylabels("Fitness", fontsize=14)
+g.set_ylabels("Fitness", fontsize=16)
 g.set_xlabels("", fontsize=0)
 g.set_xticklabels(["Control", "Developmental\nCompression"], fontsize=14)
+# g.set_yticklabels(fontsize=12)
 
 
 plt.savefig("plots/Dev_Compression_Preliminary_Results.pdf")
