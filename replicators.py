@@ -104,8 +104,8 @@ class Individual(object):
         self.already_evaluated = False
 
     def dominates(self, other):
-        # TODO: ...the pareto front explodes when using 2 fitness objectives
-        if self.development_type == -1:  # use each env score and age (3 objectives total)
+
+        if not self.compress_multiple_brains:  # use each env score and age (3 objectives total)
             if self.env_scores[0] > other.env_scores[0] and self.env_scores[1] >= other.env_scores[1] and self.age <= other.age:
                 return True
 

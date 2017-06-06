@@ -4,7 +4,7 @@ import numpy as np
 from replicators import Population
 
 
-POP_SIZE = 50
+POP_SIZE = 30
 GENS = 1000
 NUM_ENV = 2
 EVAL_TIME = 1000
