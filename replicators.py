@@ -6,7 +6,8 @@ from environments import Environment
 
 
 class Individual(object):
-    def __init__(self, idx, num_env, speed, eval_time, body_length, num_legs, development_type, fitness_stat):
+    def __init__(self, idx, num_env, speed, eval_time, body_length, num_legs, development_type, fitness_stat,
+                 compress_multiple_brains):
         self.num_env = num_env
         self.sim = [None for _ in range(num_env)]
         self.speed = speed
@@ -14,8 +15,6 @@ class Individual(object):
         self.body_length = body_length
         self.num_legs = num_legs
         self.development_type = development_type
-        # self.weight_genes = np.random.random((2, num_legs+1, 2*num_legs)) * 2 - 1
-        # self.time_genes = np.random.randint(1, eval_time, (1, num_legs+1, 2*num_legs))
         self.weight_genes = np.array([np.random.random((2, num_legs+1, 2*num_legs)) * 2 - 1 for _ in range(num_env)])
         self.time_genes = np.array([np.random.randint(1, eval_time, (num_legs+1, 2*num_legs)) for _ in range(num_env)])
         self.genome = {env: {"weights": self.weight_genes[env], "transition_times": self.time_genes[env]}
@@ -25,6 +24,7 @@ class Individual(object):
         self.fitness_stat = fitness_stat
         self.fitness = 0
         self.age = 0
+        self.compress_multiple_brains = compress_multiple_brains
         self.dev_compression = self.calc_dev_compression()
         self.dominated_by = []
         self.pareto_level = 0
@@ -38,7 +38,7 @@ class Individual(object):
 
     def calc_dev_compression(self):
 
-        if self.development_type == 0:
+        if not self.compress_multiple_brains:
             return 0
 
         trace = {}
@@ -57,7 +57,7 @@ class Individual(object):
         for e in range(self.num_env):
             self.sim[e] = PYROSIM(playPaused=pause, evalTime=eval_time, playBlind=blind)
 
-            if self.development_type == 0:
+            if not self.compress_multiple_brains:
                 this_genome = self.genome[0]  # only use one brain
             else:
                 this_genome = self.genome[e]  # use different brain for each environment
@@ -84,7 +84,7 @@ class Individual(object):
     def mutate(self, new_id, prob=None):
         if prob is None:
             prob = 1 / float((self.num_legs+1)*2*self.num_legs*self.num_env)  # one per brain
-            if self.development_type == 0:
+            if not self.compress_multiple_brains:
                 prob *= self.num_env
 
         weight_change = np.random.normal(scale=np.abs(self.weight_genes))
@@ -140,7 +140,7 @@ class Individual(object):
 
 class Population(object):
     def __init__(self, size, num_env=2, eval_time=1000, speed=0.1, body_length=0.1, num_legs=4, development_type=0,
-                 fitness_stat=np.sum):
+                 fitness_stat=np.sum, compress_multiple_brains=False):
         self.size = size
         self.gen = 0
         self.individuals_dict = {}
@@ -151,6 +151,7 @@ class Population(object):
         self.body_length = body_length
         self.num_legs = num_legs
         self.development_type = development_type
+        self.compress_multiple_brains = compress_multiple_brains
         self.fitness_stat = fitness_stat
         self.non_dominated_size = 0
         self.pareto_levels = {}
@@ -195,7 +196,7 @@ class Population(object):
         for _ in range(num_random):
             self.individuals_dict[self.max_id] = Individual(self.max_id, self.num_env, self.speed, self.eval_time,
                                                             self.body_length, self.num_legs, self.development_type,
-                                                            self.fitness_stat)
+                                                            self.fitness_stat, self.compress_multiple_brains)
             self.max_id += 1
 
     def update_dominance(self):

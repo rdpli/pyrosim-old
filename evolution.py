@@ -4,7 +4,7 @@ import numpy as np
 from replicators import Population
 
 
-POP_SIZE = 30
+POP_SIZE = 50
 GENS = 1000
 NUM_ENV = 2
 EVAL_TIME = 1000
@@ -16,9 +16,10 @@ for run in range(30):
     random.seed(run)
     np.random.seed(run)
 
-    for development_type in [0, 1]:
+    for compress in [False, True]:
 
-        pop = Population(POP_SIZE, num_env=NUM_ENV, development_type=development_type, fitness_stat=FIT_STAT)
+        pop = Population(POP_SIZE, num_env=NUM_ENV, development_type=1, fitness_stat=FIT_STAT,
+                         compress_multiple_brains=compress)
 
         for gen in range(GENS):
             pop.create_children_through_mutation()
@@ -29,7 +30,7 @@ for run in range(30):
             pop.print_non_dominated()
             pop.gen += 1
 
-        f = open('data/Dev_Compress_{0}_Run_{1}.p'.format(development_type, run), 'w')
+        f = open('data/Dev_Compress_{0}_Run_{1}.p'.format(int(compress), run), 'w')
         pickle.dump(pop, f)
         f.close()
 
