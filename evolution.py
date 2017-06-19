@@ -30,7 +30,7 @@ for run in range(30):
             pop.print_non_dominated()
             pop.gen += 1
 
-        f = open('~/scratch/Dev_Compress_{0}_Run_{1}.p'.format(int(compress), run), 'w')
+        f = open('~/scratch/Dev_Compression/Dev_Compress_{0}_Run_{1}.p'.format(int(compress), run), 'w')
         pickle.dump(pop, f)
         f.close()
 
