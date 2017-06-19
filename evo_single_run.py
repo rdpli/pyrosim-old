@@ -7,7 +7,7 @@ from replicators import Population
 
 SEED = int(sys.argv[1])
 
-POP_SIZE = 50
+POP_SIZE = 100
 GENS = 1000
 NUM_ENV = 2
 EVAL_TIME = 1000
@@ -36,13 +36,13 @@ for compress in [False, True]:
     f.close()
 
 
-r = open('data/Dev_Compress_1_Run_1.p', 'r')
-final_pop = pickle.load(r)
-
-sorted_inds = sorted(final_pop.individuals_dict, key=lambda k: final_pop.individuals_dict[k].fitness)
-final_pop.individuals_dict[sorted_inds[-1]].start_evaluation(blind=False, eval_time=EVAL_TIME, pause=True)
-
-r.close()
+# r = open('data/Dev_Compress_1_Run_1.p', 'r')
+# final_pop = pickle.load(r)
+#
+# sorted_inds = sorted(final_pop.individuals_dict, key=lambda k: final_pop.individuals_dict[k].fitness)
+# final_pop.individuals_dict[sorted_inds[-1]].start_evaluation(blind=False, eval_time=EVAL_TIME, pause=True)
+#
+# r.close()
 
 
 
