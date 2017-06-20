@@ -7,7 +7,7 @@ from replicators import Population
 
 SEED = int(sys.argv[1])
 
-POP_SIZE = 100
+POP_SIZE = 200
 GENS = 1000
 NUM_ENV = 2
 EVAL_TIME = 1000
@@ -31,7 +31,7 @@ for compress in [False, True]:
         pop.print_non_dominated()
         pop.gen += 1
 
-    f = open('data/Dev_Compress_{0}_Run_{1}.p'.format(int(compress), SEED), 'w')
+    f = open('~/scratch/Dev_Compression/Dev_Compress_{0}_Run_{1}.p'.format(int(compress), SEED), 'w')
     pickle.dump(pop, f)
     f.close()
 
