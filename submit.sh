@@ -9,7 +9,9 @@ echo "Using number of runs: " $1
 for x in `seq 1 $1`
 do
 	seed=${x}
-	qsub -vARG_SEED=${seed} ./single_runner.pbs
-	echo "Run $x started with seed $seed"
+	qsub -vARG_SEED=${seed} ./Evo_single_runner.pbs
+	echo "Evo run $x started with seed $seed"
+	qsub -vARG_SEED=${seed} ./Dev_single_runner.pbs
+	echo "Devo run $x started with seed $seed"
 #	sleep 1;
 done

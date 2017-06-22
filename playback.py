@@ -10,13 +10,25 @@ sns.set(style="whitegrid")
 EXP_NAMES = ["Control", "Compression"]
 
 data = []
+pareto_front = []
 for exp_num in range(2):
-    for run in range(30):
-        r = open('/home/sam/Projects/pyrosim/data/Dev_Compress_{0}_Run_{1}.p'.format(exp_num, run), 'r')
-        final_pop = pickle.load(r)
-        sorted_inds = sorted(final_pop.individuals_dict, key=lambda k: final_pop.individuals_dict[k].fitness)
-        data += [(EXP_NAMES[exp_num], run, final_pop.individuals_dict[sorted_inds[-1]].fitness)]
-        r.close()
+    for run in range(1, 31):
+        try:
+            r = open('/home/sam/Archive/skriegma/Dev_Compression/Dev_Compress_amin_{0}_Run_{1}.p'.format(exp_num, run), 'r')
+            final_pop = pickle.load(r)
+            sorted_inds = sorted(final_pop.individuals_dict, key=lambda k: final_pop.individuals_dict[k].fitness,
+                                 reverse=True)
+            data += [(EXP_NAMES[exp_num], run, final_pop.individuals_dict[sorted_inds[0]].fitness)]
+
+            # final_pop.update_dominance()
+            # for key, ind in final_pop.individuals_dict.items():
+            #     if ind.pareto_level == 0:
+            #         pareto_front += [(ind.fitness, ind.dev_compression, ind.age)]
+
+            r.close()
+        except IOError:
+            print run
+            pass
 
 e = [f for (n, r, f) in data if n == EXP_NAMES[0]]
 d = [f for (n, r, f) in data if n == EXP_NAMES[1]]
@@ -39,7 +51,8 @@ g.set_xlabels("", fontsize=0)
 g.set_xticklabels(["Control", "Developmental\nCompression"], fontsize=14)
 # g.set_yticklabels(fontsize=12)
 
-
-plt.savefig("plots/Dev_Compression_Preliminary_Results.pdf")
+# plt.ylim([0, 0.8])
+plt.tight_layout()
+plt.savefig("plots/Dev_Compression_Preliminary_Results_Min.pdf", bbox_inches='tight')
 
 

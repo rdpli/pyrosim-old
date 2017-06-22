@@ -6,7 +6,7 @@ from replicators import Population
 
 
 SEED = int(sys.argv[1])
-COMPRESSION = int(sys.argv[2])
+COMPRESSION = False
 
 POP_SIZE = 400
 GENS = 1000
