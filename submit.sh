@@ -11,7 +11,7 @@ do
 	seed=${x}
 	qsub -vARG_SEED=${seed} ./Evo_single_runner.pbs
 	echo "Evo run $x started with seed $seed"
-	qsub -vARG_SEED=${seed} ./Dev_single_runner.pbs
+	qsub -vARG_SEED=${seed} ./Devo_single_runner.pbs
 	echo "Devo run $x started with seed $seed"
 #	sleep 1;
 done
