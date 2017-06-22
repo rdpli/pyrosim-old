@@ -6,10 +6,11 @@ from replicators import Population
 
 
 SEED = int(sys.argv[1])
+COMPRESSION = int(sys.argv[2])
 
-POP_SIZE = 250
+POP_SIZE = 400
 GENS = 1000
-NUM_ENV = 2
+NUM_ENV = 4
 EVAL_TIME = 1000
 FIT_STAT = np.min
 
@@ -17,24 +18,23 @@ FIT_STAT = np.min
 random.seed(SEED)
 np.random.seed(SEED)
 
-for compress in [False, True]:
 
-    pop = Population(POP_SIZE, num_env=NUM_ENV, development_type=1, fitness_stat=FIT_STAT,
-                     compress_multiple_brains=compress)
+pop = Population(POP_SIZE, num_env=NUM_ENV, development_type=1, fitness_stat=FIT_STAT,
+                 compress_multiple_brains=COMPRESSION)
 
-    for gen in range(GENS):
-        pop.create_children_through_mutation()
-        pop.add_random_inds(1)
-        pop.increment_ages()
-        pop.evaluate()
-        pop.reduce()
-        pop.print_non_dominated()
-        pop.gen += 1
+for gen in range(GENS):
+    pop.create_children_through_mutation()
+    pop.add_random_inds(1)
+    pop.increment_ages()
+    pop.evaluate()
+    pop.reduce()
+    pop.print_non_dominated()
+    pop.gen += 1
 
-    f = open('/users/s/k/skriegma/scratch/Dev_Compression/'
-             'Dev_Compress_{0}_{1}_Run_{2}.p'.format(FIT_STAT.__name__, int(compress), SEED), 'w')
-    pickle.dump(pop, f)
-    f.close()
+f = open('/users/s/k/skriegma/scratch/Dev_Compression/'
+         'Dev_Compress_{0}_{1}_Run_{2}.p'.format(FIT_STAT.__name__, int(COMPRESSION), SEED), 'w')
+pickle.dump(pop, f)
+f.close()
 
 
 # r = open('data/Dev_Compress_1_Run_1.p', 'r')
